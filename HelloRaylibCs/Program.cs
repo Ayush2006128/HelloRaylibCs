@@ -6,7 +6,7 @@
         [System.STAThread]
         public static void Main()
         {
-            Raylib.InitWindow(800, 450, "Hello Raylib-cs!");
+            Raylib.InitWindow(800, 450, "Pong!");
 
             // Pedals for Pong game
             Rectangle leftPedal = new Rectangle(10, 225, 5, 90);
