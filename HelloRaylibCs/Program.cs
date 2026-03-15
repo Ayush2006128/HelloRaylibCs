@@ -3,6 +3,45 @@
     using Raylib_cs;
     public class Program
     {
+        private static void CheckBallCollisions(float ballX, float ballY, int ballRadius, 
+            Rectangle leftPedal, Rectangle rightPedal, ref float ballSpeedX, ref float ballSpeedY)
+        {
+            // Check for collision with top and bottom walls
+            if (ballY <= 0 || ballY >= 450)
+            {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Check for collision with left pedal
+            if (ballX - ballRadius <= leftPedal.X + leftPedal.Width &&
+                ballY >= leftPedal.Y && ballY <= leftPedal.Y + leftPedal.Height)
+            {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Check for collision with right pedal
+            if (ballX - ballRadius <= rightPedal.X + rightPedal.Width &&
+                ballY >= rightPedal.Y && ballY <= rightPedal.Y + rightPedal.Height)
+            {
+                ballSpeedX = -ballSpeedX;
+            }
+        }
+
+        private static void MovePedal(ref Rectangle pedal, string keyGroup, float changeValue)
+        {
+            KeyboardKey upKey = keyGroup == "arrows" ? KeyboardKey.Up : KeyboardKey.W;
+            KeyboardKey downKey = keyGroup == "arrows" ? KeyboardKey.Down : KeyboardKey.S;
+
+            if (Raylib.IsKeyPressed(upKey) && pedal.Y > 0)
+            {
+                pedal.Y -= changeValue;
+            }
+            else if (Raylib.IsKeyPressed(downKey) && pedal.Y < 360)
+            {
+                pedal.Y += changeValue;
+            }
+        }
+
         [System.STAThread]
         public static void Main()
         {
@@ -22,7 +61,8 @@
             float ballSpeedY = 0.5f;
 
             // Score 
-            int score = 0;
+            int scoreLeft = 0;
+            int scoreRight = 0;
 
             // Main game loop
             while (!Raylib.WindowShouldClose())
@@ -39,30 +79,19 @@
                 Raylib.DrawCircle((int)ballX, (int)ballY, ballRadius, Color.Red);
 
                 // Draw the score
-                Raylib.DrawText($"{score}", 385, 10, 20, Color.Black);
+                Raylib.DrawText($"{scoreLeft}", 380, 10, 20, Color.Black);
+                Raylib.DrawText($"{scoreRight}", 410, 10, 20, Color.Black);
 
                 // Move the ball
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
 
-                // Check for collision with top and bottom walls
-                if (ballY <= 0 || ballY >= 450)
-                {
-                    ballSpeedY = -ballSpeedY; // Reverse the ball's vertical direction
-                }
+                // Check collisions
+                CheckBallCollisions(ballX, ballY, ballRadius, leftPedal, rightPedal, ref ballSpeedX, ref ballSpeedY);
 
-                // Check for collision with left pedal
-                if (ballX - ballRadius <= leftPedal.X + leftPedal.Width &&
-                    ballY >= leftPedal.Y && ballY <= leftPedal.Y + leftPedal.Height)
-                {
-                    ballSpeedX = -ballSpeedX; // Reverse the ball's horizontal direction
-                }
-
-                if (ballX - ballRadius <= rightPedal.X + rightPedal.Width &&
-    ballY >= rightPedal.Y && ballY <= rightPedal.Y + rightPedal.Height)
-                {
-                    ballSpeedX = -ballSpeedX; // Reverse the ball's horizontal direction
-                }
+                // Move the pedals with keyboard input
+                MovePedal(ref leftPedal, "wsad", 10f);
+                MovePedal(ref rightPedal, "arrows", 10f);
                 Raylib.EndDrawing();
             }
             Raylib.CloseWindow();
