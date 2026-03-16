@@ -1,46 +1,10 @@
-﻿namespace HelloRaylibCs
+﻿using Raylib_cs;
+using HelloRaylibCs.lib;
+
+namespace HelloRaylibCs
 {
-    using Raylib_cs;
     public class Program
     {
-        private static void CheckBallCollisions(float ballX, float ballY, int ballRadius, 
-            Rectangle leftPedal, Rectangle rightPedal, ref float ballSpeedX, ref float ballSpeedY)
-        {
-            // Check for collision with top and bottom walls
-            if (ballY <= 0 || ballY >= 450)
-            {
-                ballSpeedY = -ballSpeedY;
-            }
-
-            // Check for collision with left pedal
-            if (ballX - ballRadius <= leftPedal.X + leftPedal.Width &&
-                ballY >= leftPedal.Y && ballY <= leftPedal.Y + leftPedal.Height)
-            {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            // Check for collision with right pedal
-            if (ballX - ballRadius <= rightPedal.X + rightPedal.Width &&
-                ballY >= rightPedal.Y && ballY <= rightPedal.Y + rightPedal.Height)
-            {
-                ballSpeedX = -ballSpeedX;
-            }
-        }
-
-        private static void MovePedal(ref Rectangle pedal, string keyGroup, float changeValue)
-        {
-            KeyboardKey upKey = keyGroup == "arrows" ? KeyboardKey.Up : KeyboardKey.W;
-            KeyboardKey downKey = keyGroup == "arrows" ? KeyboardKey.Down : KeyboardKey.S;
-
-            if (Raylib.IsKeyPressed(upKey) && pedal.Y > 0)
-            {
-                pedal.Y -= changeValue;
-            }
-            else if (Raylib.IsKeyPressed(downKey) && pedal.Y < 360)
-            {
-                pedal.Y += changeValue;
-            }
-        }
 
         [System.STAThread]
         public static void Main()
@@ -64,6 +28,9 @@
             int scoreLeft = 0;
             int scoreRight = 0;
 
+            // Game states
+            string gameState = "init";
+
             // Main game loop
             while (!Raylib.WindowShouldClose())
             {
@@ -82,16 +49,46 @@
                 Raylib.DrawText($"{scoreLeft}", 380, 10, 20, Color.Black);
                 Raylib.DrawText($"{scoreRight}", 410, 10, 20, Color.Black);
 
-                // Move the ball
-                ballX += ballSpeedX;
-                ballY += ballSpeedY;
+                // Check state
+                if (gameState == "init")
+                {
+                    Raylib.DrawText("Press SPACE to Start", 300, 200, 20, Color.DarkGray);
+                    if (Raylib.IsKeyPressed(KeyboardKey.Space))
+                    {
+                        gameState = "playing";
+                    }
+                }
+                else if (gameState == "playing")
+                {
+                    // Move the ball
+                    ballX += ballSpeedX;
+                    ballY += ballSpeedY;
 
-                // Check collisions
-                CheckBallCollisions(ballX, ballY, ballRadius, leftPedal, rightPedal, ref ballSpeedX, ref ballSpeedY);
+                    // Check collisions
+                    Utils.CheckBallCollisions(ballX, ballY, ballRadius, leftPedal, rightPedal, ref ballSpeedX, ref ballSpeedY);
 
+                    // Check for scoring
+                    if (ballX < 0)
+                    {
+                        scoreRight++;
+                        ballX = 400f;
+                        ballY = 225f;
+                        ballSpeedX = -ballSpeedX; // Change direction
+                        gameState = "init"; // Reset to init state
+                    }
+                    else if (ballX > 800)
+                    {
+                        scoreLeft++;
+                        ballX = 400f;
+                        ballY = 225f;
+                        ballSpeedX = -ballSpeedX; // Change direction
+                        gameState = "init"; // Reset to init state
+                    }
+                }
                 // Move the pedals with keyboard input
-                MovePedal(ref leftPedal, "wsad", 10f);
-                MovePedal(ref rightPedal, "arrows", 10f);
+                Utils.MovePedal(ref leftPedal, "wsad", 10f);
+                Utils.MovePedal(ref rightPedal, "arrows", 10f);
+
                 Raylib.EndDrawing();
             }
             Raylib.CloseWindow();
