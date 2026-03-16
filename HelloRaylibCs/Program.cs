@@ -11,6 +11,12 @@ namespace HelloRaylibCs
         {
             Raylib.InitWindow(800, 450, "Pong!");
 
+            Raylib.SetTargetFPS(Raylib.GetMonitorRefreshRate(0)); // Sync with monitor refresh rate for smooth animation
+
+            Image icon = Raylib.LoadImage("ping-pong.png");
+
+            Raylib.SetWindowIcon(icon);
+
             // Pedals for Pong game
             Rectangle leftPedal = new Rectangle(10, 225, 5, 90);
             Rectangle rightPedal = new Rectangle(785, 225, 5, 90);
