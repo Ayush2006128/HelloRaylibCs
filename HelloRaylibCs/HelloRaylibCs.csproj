@@ -8,6 +8,7 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <ApplicationIcon>ping-pong.ico</ApplicationIcon>
+    <AssemblyName>ping-pong</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
